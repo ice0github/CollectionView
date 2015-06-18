@@ -52,6 +52,7 @@ static NSString * const reuseIdentifier = @"Cell";
     myC.showsHorizontalScrollIndicator = YES;
     myC.showsVerticalScrollIndicator = YES;
     myC.pagingEnabled = YES;
+    myC.scrollEnabled = YES;
     [myC registerClass:[CCell class] forCellWithReuseIdentifier:reuseIdentifier];
     [self.view addSubview:myC];
     
@@ -91,7 +92,7 @@ static NSString * const reuseIdentifier = @"Cell";
 
 -(void)addAct:(UIButton *)sender
 {
-    [titleArr insertObject:@"11111111" atIndex:titleArr.count];
+    [titleArr insertObject:[NSString stringWithFormat:@"%d",(arc4random() %1000)] atIndex:titleArr.count];
     [myC reloadData];
 }
 

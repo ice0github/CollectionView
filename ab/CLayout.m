@@ -62,7 +62,7 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
 -(CGSize)collectionViewContentSize
 {
 #warning 滑动有小徐问题
-    float height = (SIZE + self.margin) * ([self.collectionView numberOfItemsInSection:0] / 2 + 1);
+    float height = (SIZE + self.margin) * ([self.collectionView numberOfItemsInSection:0] / 3);
     return CGSizeMake(320, height);
 }
 

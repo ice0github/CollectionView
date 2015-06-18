@@ -27,7 +27,7 @@ static NSString * const reuseIdentifier = @"Cell";
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     titleArr = [[NSMutableArray array] init];
-    for (NSInteger i = 1; i <= 8; i++) {
+    for (NSInteger i = 1; i <= 100; i++) {
         NSString *name = [NSString stringWithFormat:@"%ld",i];
         [titleArr addObject:name];
     }
@@ -51,7 +51,7 @@ static NSString * const reuseIdentifier = @"Cell";
     myC.delegate = self;
     myC.showsHorizontalScrollIndicator = YES;
     myC.showsVerticalScrollIndicator = YES;
-    myC.pagingEnabled = YES;
+    myC.pagingEnabled = NO;
     myC.scrollEnabled = YES;
     [myC registerClass:[CCell class] forCellWithReuseIdentifier:reuseIdentifier];
     [self.view addSubview:myC];
@@ -63,7 +63,16 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    CCell *cell = nil;
+    if (cell == nil) {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    }
+    else
+    {
+        while ([cell.contentView.subviews lastObject] != nil) {
+            [(UIView *)[cell.contentView.subviews lastObject] removeFromSuperview];
+        }
+    }
     cell.titleLabel.text = [NSString stringWithFormat:@"%@",titleArr[indexPath.row]];
     return cell;
 }
@@ -102,7 +111,13 @@ static NSString * const reuseIdentifier = @"Cell";
         return;
     }
     NSArray *visibleIndexPaths = [myC indexPathsForVisibleItems];
-    NSIndexPath *toRemove = [visibleIndexPaths objectAtIndex:(arc4random() % visibleIndexPaths.count)];
+    NSArray *sortedIndexPaths = [visibleIndexPaths sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        NSIndexPath *path1 = (NSIndexPath *)obj1;
+        NSIndexPath *path2 = (NSIndexPath *)obj2;
+        return [path1 compare:path2];
+    }];
+    NSIndexPath *toRemove = [visibleIndexPaths objectAtIndex:(arc4random() % sortedIndexPaths.count)];
+
     [self removeIndexPath:toRemove];
 }
 
@@ -120,6 +135,15 @@ static NSString * const reuseIdentifier = @"Cell";
         [myC reloadData];
     }];
 }
+
+//- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+//{
+//    NSArray* visibleCellIndex = myC.indexPathsForVisibleItems;
+//    
+//    NSIndexPath* newFirstVisibleCell = [visibleCellIndex firstObject];
+//    NSIndexPath* newLastVisibleCell = [visibleCellIndex lastObject];
+//    NSLog(@"Visible cells [ %ld ; %ld]",newFirstVisibleCell.row,newLastVisibleCell.row);
+//}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

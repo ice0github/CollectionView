@@ -24,6 +24,7 @@
 
 -(void)layoutSubviews
 {
+#warning 形状
     [super layoutSubviews];
     CGFloat longSide = SIZE * 0.5 * cosf(M_PI * 30 / 180);
     CGFloat shortSide = SIZE * 0.5 * sin(M_PI * 30 / 180);
@@ -43,8 +44,6 @@
     self.backgroundColor = [UIColor orangeColor];
     self.titleLabel.textAlignment = NSTextAlignmentCenter;
     self.titleLabel.frame = self.contentView.frame;
-//    self.transform = CGAffineTransformMakeRotation((M_PI * (90)/180));
-//    self.titleLabel.transform = CGAffineTransformMakeRotation((M_PI * (-90)/180));
 }
 
 

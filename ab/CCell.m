@@ -25,7 +25,6 @@
 
 //-(void)layoutSubviews
 //{
-//#warning 形状
 //    [super layoutSubviews];
 //    
 //
@@ -54,6 +53,7 @@
 
 -(void)drawRect:(CGRect)rect
 {
+#warning 还有bug,未能根据item大小来变化
     //// Polygon Drawing
     UIBezierPath* polygonPath = UIBezierPath.bezierPath;
     [polygonPath moveToPoint: CGPointMake(CGRectGetMinX(rect) + 50, CGRectGetMaxY(rect) + 0.9)];

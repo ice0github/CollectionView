@@ -59,7 +59,6 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    //#warning Incomplete method implementation -- Return the number of items in the section
     return titleArr.count;
 }
 
@@ -98,6 +97,7 @@ static NSString * const reuseIdentifier = @"Cell";
 
 -(void)killAct:(UIButton *)sender
 {
+#warning 暂时只能随机一个个删除
     if (!titleArr.count) {
         return;
     }

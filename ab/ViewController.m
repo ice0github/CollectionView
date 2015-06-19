@@ -136,15 +136,6 @@ static NSString * const reuseIdentifier = @"Cell";
     }];
 }
 
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-//{
-//    NSArray* visibleCellIndex = myC.indexPathsForVisibleItems;
-//    
-//    NSIndexPath* newFirstVisibleCell = [visibleCellIndex firstObject];
-//    NSIndexPath* newLastVisibleCell = [visibleCellIndex lastObject];
-//    NSLog(@"Visible cells [ %ld ; %ld]",newFirstVisibleCell.row,newLastVisibleCell.row);
-//}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

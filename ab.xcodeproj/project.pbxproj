@@ -428,6 +428,7 @@
 				DB99F09E1B3272BA00885CE3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		DB99F09F1B3272BA00885CE3 /* Build configuration list for PBXNativeTarget "abTests" */ = {
 			isa = XCConfigurationList;
@@ -436,6 +437,7 @@
 				DB99F0A11B3272BA00885CE3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

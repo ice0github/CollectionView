@@ -11,7 +11,8 @@
 #import <objc/runtime.h>
 
 #define SIZE 100
-#define COL ((int)(320.0 / SIZE / 2.0) * 2)
+#define screenWidth ([UIScreen mainScreen].bounds.size.width)
+#define COL ((int)(screenWidth / SIZE / 2.0) * 2)
 
 #ifndef CGGEOMETRY_CSUPPORT_H_
 CG_INLINE CGPoint
@@ -61,9 +62,8 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
 
 -(CGSize)collectionViewContentSize
 {
-#warning 滑动有小徐问题
-    float height = (SIZE + self.margin) * ([self.collectionView numberOfItemsInSection:0] / 3);
-    return CGSizeMake(320, height);
+    float height = (SIZE + self.margin) * ([self.collectionView numberOfItemsInSection:0] / 2);
+    return CGSizeMake(screenWidth, height);
 }
 
 - (id)init {
@@ -74,17 +74,8 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
     return self;
 }
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-    self = [super initWithCoder:aDecoder];
-    if (self) {
-        [self addObserver:self forKeyPath:kCCollectionViewKeyPath options:NSKeyValueObservingOptionNew context:nil];
-    }
-    return self;
-}
-
 - (void)dealloc {
     [self invalidatesScrollTimer];
-    [self tearDownCollectionView];
     [self removeObserver:self forKeyPath:kCCollectionViewKeyPath];
 }
 
@@ -137,53 +128,6 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
     self.displayLink = nil;
 }
 
-- (void)setupScrollTimerInDirection:(CScrollingDirection)direction {
-    if (!self.displayLink.paused) {
-        CScrollingDirection oldDirection = [self.displayLink.C_userInfo[kCScrollingDirectionKey] integerValue];
-        
-        if (direction == oldDirection) {
-            return;
-        }
-    }
-    
-    [self invalidatesScrollTimer];
-    
-    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleScroll:)];
-    self.displayLink.C_userInfo = @{ kCScrollingDirectionKey : @(direction) };
-    
-    [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
-}
-
-- (void)tearDownCollectionView {
-    // Tear down long press gesture
-    if (_longPressGesture) {
-        UIView *view = _longPressGesture.view;
-        if (view) {
-            [view removeGestureRecognizer:_longPressGesture];
-        }
-        _longPressGesture.delegate = nil;
-        _longPressGesture = nil;
-    }
-    
-    // Tear down pan gesture
-    if (_panGesture) {
-        UIView *view = _panGesture.view;
-        if (view) {
-            [view removeGestureRecognizer:_panGesture];
-        }
-        _panGesture.delegate = nil;
-        _panGesture = nil;
-    }
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
-}
-
-- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes {
-    if ([layoutAttributes.indexPath isEqual:self.selectedItemIndexPath]) {
-        layoutAttributes.hidden = YES;
-    }
-}
-
 - (void)setupCollectionView
 {
     [self setUpCollectionViewGesture];
@@ -195,31 +139,31 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
     
     UICollectionView *collection = self.collectionView;
     if (indexPath.item %5 == 0) {
-        float x = (320-SIZE)/2;
-        float y = 134;
-        attributes.center = CGPointMake(x+collection.contentOffset.x, (indexPath.item+5)/5*y+collection.contentOffset.y+indexPath.item/5*36);
+        float x = (screenWidth-SIZE)/2;
+        float y = 70;
+        attributes.center = CGPointMake(x+collection.contentOffset.x, (indexPath.item+5)/5*y+indexPath.item/5*100);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 1) {
-        float x = (320-SIZE)/2;
-        float y = 134;
+        float x = (screenWidth-SIZE)/2;
+        float y = 70;
         x = x+SIZE;
-        attributes.center = CGPointMake(x + collection.contentOffset.x, (indexPath.item+5)/5*y+collection.contentOffset.y+indexPath.item/5*36);
+        attributes.center = CGPointMake(x + collection.contentOffset.x, (indexPath.item+5)/5*y+indexPath.item/5*100);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 2) {
-        float y = 219;
-        attributes.center = CGPointMake(60, (indexPath.item+5)/5*y+collection.contentOffset.y+indexPath.item/5*-49);
+        float y = 155;
+        attributes.center = CGPointMake(60, (indexPath.item+5)/5*y+indexPath.item/5*+15);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 3) {
-        float y = 219;
-        attributes.center = CGPointMake(160, (indexPath.item+5)/5*y+collection.contentOffset.y+indexPath.item/5*-49);
+        float y = 155;
+        attributes.center = CGPointMake(160, (indexPath.item+5)/5*y+indexPath.item/5*+15);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 4) {
-        float y = 219;
-        attributes.center = CGPointMake(260, (indexPath.item+5)/5*y+collection.contentOffset.y+indexPath.item/5*-49);
+        float y = 155;
+        attributes.center = CGPointMake(260, (indexPath.item+5)/5*y+indexPath.item/5*+15);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     return attributes;
@@ -255,70 +199,6 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
     }
 }
 
-- (void)handleScroll:(CADisplayLink *)displayLink {
-    CScrollingDirection direction = (CScrollingDirection)[displayLink.C_userInfo[kCScrollingDirectionKey] integerValue];
-    if (direction == CScrollingDirectionUnknown) {
-        return;
-    }
-    
-    CGSize frameSize = self.collectionView.bounds.size;
-    CGSize contentSize = self.collectionView.contentSize;
-    CGPoint contentOffset = self.collectionView.contentOffset;
-    UIEdgeInsets contentInset = self.collectionView.contentInset;
-    // Important to have an integer `distance` as the `contentOffset` property automatically gets rounded
-    // and it would diverge from the view's center resulting in a "cell is slipping away under finger"-bug.
-    CGFloat distance = rint(self.scrollingSpeed * displayLink.duration);
-    CGPoint translation = CGPointZero;
-    
-    switch(direction) {
-        case CScrollingDirectionUp: {
-            distance = -distance;
-            CGFloat minY = 0.0f - contentInset.top;
-            
-            if ((contentOffset.y + distance) <= minY) {
-                distance = -contentOffset.y - contentInset.top;
-            }
-            
-            translation = CGPointMake(0.0f, distance);
-        } break;
-        case CScrollingDirectionDown: {
-            CGFloat maxY = MAX(contentSize.height, frameSize.height) - frameSize.height + contentInset.bottom;
-            
-            if ((contentOffset.y + distance) >= maxY) {
-                distance = maxY - contentOffset.y;
-            }
-            
-            translation = CGPointMake(0.0f, distance);
-        } break;
-        case CScrollingDirectionLeft: {
-            distance = -distance;
-            CGFloat minX = 0.0f - contentInset.left;
-            
-            if ((contentOffset.x + distance) <= minX) {
-                distance = -contentOffset.x - contentInset.left;
-            }
-            
-            translation = CGPointMake(distance, 0.0f);
-        } break;
-        case CScrollingDirectionRight: {
-            CGFloat maxX = MAX(contentSize.width, frameSize.width) - frameSize.width + contentInset.right;
-            
-            if ((contentOffset.x + distance) >= maxX) {
-                distance = maxX - contentOffset.x;
-            }
-            
-            translation = CGPointMake(distance, 0.0f);
-        } break;
-        default: {
-            // Do nothing...
-        } break;
-    }
-    
-    self.currentViewCenter = C_CGPointAdd(self.currentViewCenter, translation);
-    self.currentView.center = C_CGPointAdd(self.currentViewCenter, self.panTranslationInCollectionView);
-    self.collectionView.contentOffset = C_CGPointAdd(contentOffset, translation);
-}
-
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)longPress
 {
     switch (longPress.state) {
@@ -331,7 +211,7 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
                     return;
                 }
             }
-//            //will begin dragging
+            //will begin dragging
             if ([self.delegate respondsToSelector:@selector(collectionView:layout:willBeginDraggingItemAtIndexPath:)]) {
                 [self.delegate collectionView:self.collectionView layout:self willBeginDraggingItemAtIndexPath:indexPath];
             }
@@ -439,19 +319,9 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
     switch (pan.state) {
         case UIGestureRecognizerStateChanged: {
             self.panTranslationInCollectionView = [pan translationInView:self.collectionView];
-            CGPoint viewCenter = self.currentView.center = C_CGPointAdd(self.currentViewCenter, self.panTranslationInCollectionView);
+            self.currentView.center = C_CGPointAdd(self.currentViewCenter, self.panTranslationInCollectionView);
             
             [self invalidateLayoutIfNecessary];
-            
-            if (viewCenter.y < (CGRectGetMinY(self.collectionView.bounds) + self.scrollingTriggerEdgeInsets.top)) {
-                [self setupScrollTimerInDirection:CScrollingDirectionUp];
-            } else {
-                if (viewCenter.y > (CGRectGetMaxY(self.collectionView.bounds) - self.scrollingTriggerEdgeInsets.bottom)) {
-                    [self setupScrollTimerInDirection:CScrollingDirectionDown];
-                } else {
-                    [self invalidatesScrollTimer];
-                }
-            }
         }
             break;
         case UIGestureRecognizerStateCancelled:
@@ -493,7 +363,6 @@ typedef NS_ENUM(NSInteger, CScrollingDirection) {
             [self setupCollectionView];
         } else {
             [self invalidatesScrollTimer];
-            [self tearDownCollectionView];
         }
     }
 }
